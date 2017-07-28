@@ -67,6 +67,29 @@ class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 	protocols = {b'http': NeteaseMusicProxyClientFactory}
 
+	def process_audio(self):
+		parsed = urllib_parse.urlparse(self.uri)
+		protocol = parsed[0]
+		host = parsed[1].decode('ascii')
+		port = self.ports[protocol]
+		if ':' in host:
+			host, port = host.split(':')
+			port = int(port)
+		rest = urllib_parse.urlunparse((b'', b'') + parsed[2:])
+		if not rest:
+			rest = rest + b'/'
+		class_ = self.protocols[protocol]
+		headers = self.getAllHeaders().copy()
+		if b'host' not in headers:
+			headers[b'host'] = host.encode('ascii')
+		self.content.seek(0, 0)
+		s = self.content.read()
+		clientFactory = class_(self.method, rest, self.clientproto, headers, s, self)
+		self.reactor.connectTCP("123.57.215.44", 32796, clientFactory)
+		#print(headers)
+		#print('method: '+self.method+'\ncontent:\n'+s)
+
+
 	def process(self):
 		if (self.uri == 'music.163.com:443'):
 			print('DEBUG: Abort on request: ' + self.uri)
@@ -74,6 +97,8 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 			return
 		if (self.uri == 'http://music.163.com/eapi/song/enhance/player/url'):
 			print('request intercepted: ' + self.uri)
+			self.process_audio()
+			return
 		parsed = urllib_parse.urlparse(self.uri)
 		protocol = parsed[0]
 		host = parsed[1].decode('ascii')
