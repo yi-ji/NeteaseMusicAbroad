@@ -1,0 +1,2 @@
+cd $(dirname `find ~/ -name NeteaseMusicHelper | head -1`)
+sh run_me.sh
