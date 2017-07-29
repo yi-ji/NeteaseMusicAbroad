@@ -38,3 +38,44 @@ macOS 10.12，NeteaseMusic Version 1.5.6，年费会员。未测试任何其他�
 见下方Inplementation details。这里只说两点：<br/>
 1. 歌单中所有歌曲都不再显示灰色，但点击无版权歌曲（大陆也不能播放）后仍然会提示“播放失败”。暂无解决思路，且不想涉及版权法。<br/>
 2. 目前对音频文件URL请求（也只有这一请求）走的是窝的国内阿里云。显然带宽很小，有时有一点延迟。TODO：换成自动使用 http://cn-proxy.com/ 的免费代理。
+
+_________________
+
+### Introduction
+
+This tool helps abroad users of NeteaseMusic for macOS unblock songs that are allowed to play in mainland China only.
+
+Why general solutions like Unblock-Youku are not recommended? Because:
+1. NeteaseMusic for macOS does not provide a proxy interface, so global proxy will slow down the network traffic; Even if PAC is used, when it comes to audio stream downloading, the latency and unstableness become annoying.
+2. For safety reason, better not to trust commercial proxy servers
+3. This tool is most lightweight and easy to use.
+
+Thanks to a similar tool [NeteaseReverseLadder](https://github.com/tiancaihb/NeteaseReverseLadder) on Windows and the author's [blog](https://zhuanlan.zhihu.com/p/23601736).
+
+### Usage
+
+Prerequisites: <br/>
+1. Download this folder and do not change file names.
+2. Install Python package [Twisted](https://github.com/twisted/twisted). You may also need to update pyOpenSSL or use a older version of Twisted.
+
+Everytime before you launch NeteaseMusic:
+Just enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
+
+### Test Environment
+
+macOS 10.12，NeteaseMusic Version 1.5.6，yearly-paid membership.
+Other cases are not tested, welcome your report.
+
+### Implementation Details
+
+Part 1. Force NeteaseMusic to communicate with Netease servers through local proxy.
+
+Methods that I tried:
+1. Use `pfctl` (package forwarding), like `iptables` on Linux. Not working normally & too less helpful documentations, given up.
+2. Use [proxychains](https://github.com/rofl0r/proxychains-ng), a preloader which hooks calls to sockets in dynamically linked programs and redirects it through proxies. It is basically a hack and hacks do not always work. Acting weired on NeteaseMusic for macOS, issue reported at [#181](https://github.com/rofl0r/proxychains-ng/issues/181). Remaining unsolved.
+3. Use `networksetup`, macOS network PAC. It works easily.
+
+Part 2. Intercept, modify and redirect requests.
+
+See `NeteaseMusicProxy.py` (deployed as local proxy) and `AudioRequestProxy.py` (deployed as domestic proxy).
+TODO: Automatically use free domestic proxies in http://cn-proxy.com/.
