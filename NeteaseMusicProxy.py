@@ -2,8 +2,10 @@ from twisted.web import proxy, http
 from twisted.internet import reactor
 from twisted.python import log
 from twisted.python.compat import urllib_parse
-import sys, gzip, StringIO, os
+import sys, gzip, StringIO, os, time
 from subprocess import Popen, PIPE, STDOUT
+import requests
+from pyquery.pyquery import PyQuery
 
 log.startLogging(sys.stdout)
 
@@ -21,22 +23,15 @@ def py_gzip_decompress(compressed_content):
 		return f.read()
 
 def sh_gzip_compress(plain_content):
-	# with open('song', 'wb') as f:
-	# 	f.write(plain_content)
-	# os.system('gzip song')
-	# with open('song.gz', 'rb') as f:
-	# 	return f.read()
 	p = Popen(['gzip', '-c'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
 	return p.communicate(input=plain_content)[0]
 
 def sh_gzip_decompress(compressed_content):
-	# with open('song.gz', 'wb') as f:
-	# 	f.write(compressed_content)
-	# os.system('gzip -d song.gz')
-	# with open('song', 'rb') as f:
-	# 	return f.read()
 	p = Popen(['gzip', '-dc'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-	return p.communicate(input=compressed_content)[0]
+	res = p.communicate(input=compressed_content)[0]
+        if res.startswith("gzip"):
+            return None
+        return res
 
 def modify_response(response):
 	response = response.replace('"st":-100', '"st":0')
@@ -50,11 +45,28 @@ def modify_response(response):
 	return response
 
 class NeteaseMusicProxyClient(proxy.ProxyClient):
+        def __init__(self, *args, **kwargs):
+            self._str_buffer = None
+            self._str_buffer_time = time.time()
+            proxy.ProxyClient.__init__(self, *args, **kwargs)
+
 	def handleResponsePart(self, buffer):
 		if (self.rest == '/eapi/v3/song/detail/'):
 			print('response intercepted: ' + self.rest)
 			try:
+                                if time.time() - self._str_buffer_time > 10:
+                                    self._str_buffer = 0
+                                    self._str_buffer_time = time.time()
+                                if self._str_buffer != None:
+                                    buffer = self._str_buffer + buffer
 				buffer_str = sh_gzip_decompress(buffer)
+                                if buffer_str == None:
+                                    self._str_buffer = buffer
+                                    self._str_buffer_time = time.time()
+                                    return
+                                else:
+                                    self._str_buffer = None
+                                    self._str_buffer_time = time.time()
 				buffer_str = modify_response(buffer_str)
 				buffer = sh_gzip_compress(buffer_str)
 			except IOError:
@@ -66,6 +78,18 @@ class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 
 class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 	protocols = {b'http': NeteaseMusicProxyClientFactory}
+
+        def get_proxy(self):
+            r = requests.get("http://cn-proxy.com/")
+            q = PyQuery(r.content)
+            trs = q("tbody tr")
+            for tr in trs:
+                trq = PyQuery(tr)
+                tds = trq.children()
+                ip = tds.eq(0).text()
+                port = int(tds.eq(1).text())
+                return ip, port
+            return None, None
 
 	def process_audio(self):
 		parsed = urllib_parse.urlparse(self.uri)
@@ -85,10 +109,12 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 		self.content.seek(0, 0)
 		s = self.content.read()
 		clientFactory = class_(self.method, rest, self.clientproto, headers, s, self)
-		self.reactor.connectTCP("123.57.215.44", 32796, clientFactory)
-		#print(headers)
-		#print('method: '+self.method+'\ncontent:\n'+s)
-
+                ip, port = self.get_proxy()
+                if ip != None:
+                    print("using ip %s and port %d" % (ip, port))
+                    self.reactor.connectTCP(ip, port, clientFactory)
+                else:
+                    self.reactor.connectTCP("123.57.215.44", 32796, clientFactory)
 
 	def process(self):
 		if (self.uri == 'music.163.com:443'):
