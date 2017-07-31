@@ -6,7 +6,9 @@
 
 ### 说明
 
-此工具帮助Mac网易云音乐的海外用户解除歌曲锁区限制（所谓锁区：很多歌曲仅限大陆地区播放）。对用户比较友好。
+此工具帮助Mac网易云音乐的海外用户解除歌曲锁区限制（所谓锁区：很多歌曲仅限大陆地区播放）。<br/>
+部分下架的歌曲也可以被恢复。<br/>
+对用户比较友好。
 
 为什么不使用Unblock-Youku等通用的反向代理解决方案？因为：
 1. Mac版网易云音乐没有内置代理接口，全局代理会使得网络通信变慢；即便使用PAC等，歌曲下载等较大流量也会变慢，并且不稳定
@@ -82,4 +84,4 @@ Part 2. Intercept, modify and redirect requests.
 
 See `NeteaseMusicProxy.py` (deployed as local proxy) and `AudioRequestProxy.py` (deployed as domestic proxy).
 
-Mainland proxy server is dynamically selected from http://cn-proxy.com/. Because those proxies can be unstable (may be refused by NeteaseMusic server), so a auto proxy selector will replace current proxy with new one or default one after a certain amount of request failures.
+Mainland proxy server is dynamically selected from http://cn-proxy.com/. Because those proxies can be unstable (may be refused by NeteaseMusic server), so an auto proxy selector will replace current proxy with new one or default one after a certain amount of request failures.
