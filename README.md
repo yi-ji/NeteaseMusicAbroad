@@ -23,11 +23,14 @@
 
 需要条件：<br/>
 下载该repo文件夹，不要修改任何文件名<br/>
-安装python包[Twisted](https://github.com/twisted/twisted)。<br/>
-最新版本的twisted需要更新pyOpenSSL才能使用。也可以选择装个旧版本。
+安装python包[Twisted](https://github.com/twisted/twisted)和PyQuery（均可用pip安装）。<br/>
+最新版本的Twisted需要更新pyOpenSSL才能使用。也可以选择装个旧版本。
 
 在每次打开网易云音乐之前：<br/>
-进入文件夹，双击NeteaseMusicHelper即可。等待提示信息成功之后可以关掉它，然后一片清净，开心听歌，不用善后。
+进入文件夹，双击NeteaseMusicHelper即可。等待提示信息成功之后可以关掉它，然后一片清净，开心听歌，不用善后。<br/>
+
+提示：点击歌曲后网易云音乐可能偶尔提示“播放失败”，大多数情况下再点一次（或两三次）歌曲即可正常载入播放。
+
 
 ### 测试环境
 
@@ -36,8 +39,8 @@ macOS 10.12，NeteaseMusic Version 1.5.6，python 2.7.10，年费会员。未测
 ### 实现细节
 
 见下方Inplementation details。这里只说两点：<br/>
-1. 歌单中所有歌曲都不再显示灰色，但点击无版权歌曲（大陆也不能播放）后仍然会提示“播放失败”。暂无解决思路，且不想涉及侵权。<br/>
-2. 目前对音频文件URL请求（也只有这一请求）采用的是cn-proxy的最优代理，缺省代理为原作者的阿里云地址。
+1. 歌单中所有歌曲都不再显示灰色，但点击无版权歌曲（大陆也不能播放）后仍然【可能】始终无法播放。恐涉及侵权，细节不再多讲。<br/>
+2. 目前对音频文件URL请求（也只有这一请求）采用的是cn-proxy提供的代理列表，缺省代理为作者的阿里云地址。
 
 _________________
 
@@ -56,15 +59,15 @@ Thanks to a similar tool [NeteaseReverseLadder](https://github.com/tiancaihb/Net
 
 Prerequisites: <br/>
 1. Download this folder and do not change file names.
-2. Install Python package [Twisted](https://github.com/twisted/twisted). You may also need to update pyOpenSSL or use a older version of Twisted.
+2. Install Python package [Twisted](https://github.com/twisted/twisted) and PyQuery. You may also need to update pyOpenSSL or use a older version of Twisted.
 
 Everytime before you launch NeteaseMusic:<br/>
 Just enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
 
 ### Test Environment
 
-macOS 10.12，NeteaseMusic Version 1.5.6，yearly-paid membership.<br/>
-Other cases are not tested, your test report is welcomed.
+macOS 10.12，NeteaseMusic Version 1.5.6，python 2.7.10, yearly-paid membership.<br/>
+Other cases are not tested and your report is welcomed.
 
 ### Implementation Details
 
@@ -77,4 +80,6 @@ Methods that I tried:
 
 Part 2. Intercept, modify and redirect requests.
 
-See `NeteaseMusicProxy.py` (deployed as local proxy) and `AudioRequestProxy.py` (deployed as domestic proxy).<br/>
+See `NeteaseMusicProxy.py` (deployed as local proxy) and `AudioRequestProxy.py` (deployed as domestic proxy).
+
+Mainland proxy server is dynamically selected from http://cn-proxy.com/. Because those proxies can be unstable (may be refused by NeteaseMusic server), so a auto proxy selector will replace current proxy with new one or default one after a certain amount of request failures.
