@@ -60,6 +60,7 @@ class MainlandProxy():
 		if (len(trs) == 0):
 			self.ip = self.default_ip
 			self.port = self.default_port
+			return
 		tr = trs[min(self.failed_times,len(trs)-1)]
 		trq = PyQuery(tr)
 		tds = trq.children()
@@ -108,11 +109,14 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 				except IOError:
 					print('bad response, cannot decompress')
 			if (self.rest == '/eapi/song/enhance/player/url'):
-				print('response intercepted: ' + self.rest)
-				buffer_str = sh_gzip_decompress(buffer)
+				#print('response intercepted: ' + self.rest)
+				try:
+					buffer_str = sh_gzip_decompress(buffer)
 				#print(buffer_str)
-				if (buffer_str is None or 'HTTP Status 404' in buffer_str):
-					mainland_proxy.change()
+					if (buffer_str is not None and 'HTTP Status 404' in buffer_str):
+						mainland_proxy.change()
+				except IOError:
+					pass
 			proxy.ProxyClient.handleResponsePart(self, buffer)
 
 class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
