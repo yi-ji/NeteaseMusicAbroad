@@ -29,9 +29,9 @@ def sh_gzip_compress(plain_content):
 def sh_gzip_decompress(compressed_content):
 	p = Popen(['gzip', '-dc'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
 	res = p.communicate(input=compressed_content)[0]
-        if res.startswith("gzip"):
-            return None
-        return res
+	if res.startswith("gzip"):
+		return None
+	return res
 
 def modify_response(response):
 	response = response.replace('"st":-100', '"st":0')
@@ -44,52 +44,82 @@ def modify_response(response):
 	response = response.replace('"subp":0', '"subp":1')
 	return response
 
-class NeteaseMusicProxyClient(proxy.ProxyClient):
-        def __init__(self, *args, **kwargs):
-            self._str_buffer = None
-            self._str_buffer_time = time.time()
-            proxy.ProxyClient.__init__(self, *args, **kwargs)
+class MainlandProxy():
+	def __init__(self):
+		self.default_ip = '123.57.215.44'
+		self.default_port = 32796
+		self.ip = ''
+		self.port = -1
+		self.failed_times = 0
+		self.set_proxy()
 
-	def handleResponsePart(self, buffer):
-		if (self.rest == '/eapi/v3/song/detail/'):
-			print('response intercepted: ' + self.rest)
-			try:
-                                if time.time() - self._str_buffer_time > 10:
-                                    self._str_buffer = 0
-                                    self._str_buffer_time = time.time()
-                                if self._str_buffer != None:
-                                    buffer = self._str_buffer + buffer
+	def set_proxy(self):
+		r = requests.get("http://cn-proxy.com/")
+		q = PyQuery(r.content)
+		trs = q("tbody tr")
+		if (len(trs) == 0):
+			self.ip = self.default_ip
+			self.port = self.default_port
+		tr = trs[min(self.failed_times,len(trs)-1)]
+		trq = PyQuery(tr)
+		tds = trq.children()
+		ip = tds.eq(0).text()
+		port = int(tds.eq(1).text())
+		self.ip = ip
+		self.port = port
+
+	def change(self):
+		self.failed_times += 1
+		print('bad proxy, ip: %s port: %d' % (self.ip, self.port))
+		if (self.failed_times > 5 and self.ip != self.default_ip):
+			self.failed_times = 0
+			self.ip = self.default_ip
+			self.port = self.default_port
+		else:
+			self.set_proxy()
+		print("using ip %s and port %d" % (self.ip, self.port))
+
+
+class NeteaseMusicProxyClient(proxy.ProxyClient):
+		def __init__(self, *args, **kwargs):
+			self._str_buffer = None
+			self._str_buffer_time = time.time()
+			proxy.ProxyClient.__init__(self, *args, **kwargs)
+
+		def handleResponsePart(self, buffer):
+			if (self.rest == '/eapi/v3/song/detail/'):
+				print('response intercepted: ' + self.rest)
+				try:
+					if time.time() - self._str_buffer_time > 10:
+						self._str_buffer = 0
+						self._str_buffer_time = time.time()
+					if self._str_buffer != None:
+						buffer = self._str_buffer + buffer
+					buffer_str = sh_gzip_decompress(buffer)
+					if buffer_str == None:
+						self._str_buffer = buffer
+						self._str_buffer_time = time.time()
+						return
+					else:
+						self._str_buffer = None
+						self._str_buffer_time = time.time()
+					buffer_str = modify_response(buffer_str)
+					buffer = sh_gzip_compress(buffer_str)
+				except IOError:
+					print('bad response, cannot decompress')
+			if (self.rest == '/eapi/song/enhance/player/url'):
+				print('response intercepted: ' + self.rest)
 				buffer_str = sh_gzip_decompress(buffer)
-                                if buffer_str == None:
-                                    self._str_buffer = buffer
-                                    self._str_buffer_time = time.time()
-                                    return
-                                else:
-                                    self._str_buffer = None
-                                    self._str_buffer_time = time.time()
-				buffer_str = modify_response(buffer_str)
-				buffer = sh_gzip_compress(buffer_str)
-			except IOError:
-				print('bad response, cannot decompress')
-		proxy.ProxyClient.handleResponsePart(self, buffer)
+				#print(buffer_str)
+				if (buffer_str is None or 'HTTP Status 404' in buffer_str):
+					mainland_proxy.change()
+			proxy.ProxyClient.handleResponsePart(self, buffer)
 
 class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 	protocol = NeteaseMusicProxyClient
 
 class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 	protocols = {b'http': NeteaseMusicProxyClientFactory}
-
-        def get_proxy(self):
-            r = requests.get("http://cn-proxy.com/")
-            q = PyQuery(r.content)
-            trs = q("tbody tr")
-            for tr in trs:
-                trq = PyQuery(tr)
-                tds = trq.children()
-                ip = tds.eq(0).text()
-                port = int(tds.eq(1).text())
-                return ip, port
-            return None, None
 
 	def process_audio(self):
 		parsed = urllib_parse.urlparse(self.uri)
@@ -109,12 +139,14 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 		self.content.seek(0, 0)
 		s = self.content.read()
 		clientFactory = class_(self.method, rest, self.clientproto, headers, s, self)
-                ip, port = self.get_proxy()
-                if ip != None:
-                    print("using ip %s and port %d" % (ip, port))
-                    self.reactor.connectTCP(ip, port, clientFactory)
-                else:
-                    self.reactor.connectTCP("123.57.215.44", 32796, clientFactory)
+		self.reactor.connectTCP(mainland_proxy.ip, mainland_proxy.port, clientFactory)
+		# ip, port = mainland_proxy.get_proxy()
+		# if ip != None:
+		# 	print("using ip %s and port %d" % (ip, port))
+		# 	self.reactor.connectTCP(ip, port, clientFactory)
+		# else:
+		# 	print("using default mainland proxy")
+		# 	self.reactor.connectTCP("123.57.215.44", 32796, clientFactory)
 
 	def process(self):
 		if (self.uri == 'music.163.com:443'):
@@ -150,6 +182,6 @@ class NeteaseMusicProxy(proxy.Proxy):
 class NeteaseMusicProxyFactory(http.HTTPFactory):
 	protocol = NeteaseMusicProxy
 
-
+mainland_proxy = MainlandProxy()
 reactor.listenTCP(32794, NeteaseMusicProxyFactory())
 reactor.run()
