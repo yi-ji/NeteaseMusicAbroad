@@ -7,7 +7,7 @@
 ### 说明
 
 此工具帮助Mac网易云音乐的海外用户解除歌曲锁区限制（所谓锁区：很多歌曲仅限大陆地区播放）。<br/>
-部分下架的歌曲也可以被恢复。【此处应有免责声明】<br/>
+多数下架的歌曲也可以被恢复。【此处应有免责声明】<br/>
 对用户比较友好。
 
 为什么不使用Unblock-Youku等通用的反向代理解决方案？因为：
@@ -20,6 +20,8 @@
 2. 想了想还是算了，不说了
 
 感谢[一个Windows下类似工具](https://github.com/tiancaihb/NeteaseReverseLadder)提供的思路以及作者的[博文](https://zhuanlan.zhihu.com/p/23601736)。
+
+此工具的使用、传播、修改均无需征得作者同意，同时作者对此不负一切责任。
 
 ### 使用方法
 
@@ -53,6 +55,8 @@ Why general solutions like Unblock-Youku are not recommended? Because:
 3. This tool is most lightweight and easy to use.
 
 Thanks to a similar tool [NeteaseReverseLadder](https://github.com/tiancaihb/NeteaseReverseLadder) on Windows and the author's [blog](https://zhuanlan.zhihu.com/p/23601736).
+
+Copyright: The author waives all rights, please feel free to use, share and modify this tool.
 
 ### Usage
 
