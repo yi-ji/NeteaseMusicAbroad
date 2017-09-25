@@ -52,6 +52,7 @@ class MainlandProxy():
 		self.port = -1
 		self.failed_times = 0
 		self.set_proxy()
+		self.status = 0
 
 	def set_proxy(self):
 		r = requests.get("http://cn-proxy.com/")
@@ -66,8 +67,14 @@ class MainlandProxy():
 		tds = trq.children()
 		ip = tds.eq(0).text()
 		port = int(tds.eq(1).text())
-		self.ip = ip
-		self.port = port
+		if self.ip == ip and self.port == port:
+			self.set_to_default()
+		else:
+			self.ip = ip
+			self.port = port
+
+	def set_to_default(self):
+		self.ip, self.port = self.default_ip, self.default_port
 
 	def change(self):
 		self.failed_times += 1
@@ -99,6 +106,8 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 			if (len(buffer) != 352):
 				print 'length of buffer:', len(buffer)
 				mainland_proxy.change()
+			else:
+				mainland_proxy.status = 0
 			# try:
 			# 	print buffer
 			# 	mainland_proxy.check(buffer)
@@ -154,6 +163,14 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 
 class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 	protocol = NeteaseMusicProxyClient
+	def clientConnectionFailed(self, connector, reason):
+		print('client connection failed, changing proxy')
+		mainland_proxy.change()
+	def clientConnectionLost(self, connector, reason):
+		if mainland_proxy.status == -1:
+			print('audio request no response, changing proxy')
+			mainland_proxy.change()
+			mainland_proxy.status = 0
 
 class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 	protocols = {b'http': NeteaseMusicProxyClientFactory}
@@ -190,7 +207,8 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 		host, port, clientFactory = self.process_prepare()
 		if self.uri == 'http://music.163.com/eapi/song/enhance/player/url':
 			print('request intercepted: ' + self.uri)
-			#mainland_proxy.ip, mainland_proxy.port = mainland_proxy.default_ip, mainland_proxy.default_port
+			#mainland_proxy.set_to_default()
+			mainland_proxy.status = -1
 			self.reactor.connectTCP(mainland_proxy.ip, mainland_proxy.port, clientFactory)
 			return
 		self.reactor.connectTCP(host, port, clientFactory)
