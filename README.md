@@ -34,7 +34,7 @@
 
 ### 测试环境
 
-macOS 10.12，NeteaseMusic Version 1.5.6，python 2.7.10，年费会员。未测试任何其他情况，欢迎测试报bug谢谢。
+macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10，年费会员。未测试任何其他情况，欢迎测试报bug谢谢。
 
 ### 实现细节
 
@@ -68,7 +68,7 @@ Just enter the folder and double-click "NeteaseMusicHelper". See the success inf
 
 ### Test Environment
 
-macOS 10.12，NeteaseMusic Version 1.5.6，python 2.7.10, yearly-paid membership.<br/>
+macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10, yearly-paid membership.<br/>
 Other cases are not tested and your report is welcomed.
 
 ### Implementation Details
