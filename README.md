@@ -32,6 +32,8 @@
 在每次打开网易云音乐之前：<br/>
 进入文件夹，双击NeteaseMusicHelper即可。等待提示信息成功之后可以关掉它，然后一片清净，开心听歌，不用善后。<br/>
 
+\* 如果歌单不再显示灰色，但点击播放时提示「找不到可以播放的歌曲」或者「因版权方要求…您所在地区已下架」，则请尝试`pip install service_identity`。<br/>
+
 ### 测试环境
 
 macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10，年费会员。未测试任何其他情况，欢迎测试报bug谢谢。
@@ -65,6 +67,8 @@ Prerequisites: <br/>
 
 Everytime before you launch NeteaseMusic:<br/>
 Just enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
+
+\* If the playlist looks good but says *"No music to be found"* or *"...copyright...your region is blocked"* when you try to play a song, please try `pip install service_identity` (might work)
 
 ### Test Environment
 
