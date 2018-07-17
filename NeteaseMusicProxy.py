@@ -2,7 +2,8 @@ from twisted.web import proxy, http
 from twisted.internet import reactor
 from twisted.python import log
 from twisted.python.compat import urllib_parse
-import sys, gzip, StringIO, os, time
+from io import StringIO
+import sys, gzip, os, time
 from subprocess import Popen, PIPE, STDOUT
 import requests
 from pyquery.pyquery import PyQuery
@@ -29,19 +30,19 @@ def sh_gzip_compress(plain_content):
 def sh_gzip_decompress(compressed_content):
 	p = Popen(['gzip', '-dc'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
 	res = p.communicate(input=compressed_content)[0]
-	if res.startswith("gzip"):
+	if res.startswith(b'gzip'):
 		return None
 	return res
 
 def modify_response(response):
-	response = response.replace('"st":-100', '"st":0')
-	response = response.replace('"st":-200', '"st":0')
-	response = response.replace('"pl":0', '"pl":320000')
-	response = response.replace('"dl":0', '"dl":320000')
-	response = response.replace('"fl":0', '"fl":320000')
-	response = response.replace('"sp":0', '"sp":7')
-	response = response.replace('"cp":0', '"cp":1')
-	response = response.replace('"subp":0', '"subp":1')
+	response = response.replace(b'"st":-100', b'"st":0')
+	response = response.replace(b'"st":-200', b'"st":0')
+	response = response.replace(b'"pl":0', b'"pl":320000')
+	response = response.replace(b'"dl":0', b'"dl":320000')
+	response = response.replace(b'"fl":0', b'"fl":320000')
+	response = response.replace(b'"sp":0', b'"sp":7')
+	response = response.replace(b'"cp":0', b'"cp":1')
+	response = response.replace(b'"subp":0', b'"subp":1')
 	return response
 
 class MainlandProxy():
@@ -96,7 +97,7 @@ class MainlandProxy():
 
 class NeteaseMusicProxyClient(proxy.ProxyClient):
 		def __init__(self, *args, **kwargs):
-			self.intercept = {'song': '/eapi/v3/song/detail/', 'search': '/eapi/cloudsearch/pc', 'url': '/eapi/song/enhance/player/url'}
+			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url'}
 			self.interval = {self.intercept['song']: 10, self.intercept['search']: 100}
 			self.temp_buffer = {self.intercept['song']: None, self.intercept['search']: None}
 			self.timestamp = {self.intercept['song']: time.time(), self.intercept['search']: time.time()}
@@ -104,7 +105,7 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 
 		def check_buffer(self, buffer):
 			if (len(buffer) != 352):
-				print 'length of buffer:', len(buffer)
+				print('length of buffer:', len(buffer))
 				mainland_proxy.change()
 			else:
 				mainland_proxy.status = 0
@@ -130,14 +131,14 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 
 		def handleResponsePart(self, buffer):
 			if self.rest in [self.intercept['song'], self.intercept['search']]:
-				print('response intercepted: ' + self.rest)
+				print('response intercepted: ', self.rest)
 				if time.time() - self.timestamp[self.rest] > self.interval[self.rest]:
 					self.temp_buffer[self.rest] = 0
 					self.timestamp[self.rest] = time.time()
 				if self.temp_buffer[self.rest] != None:
 					buffer = self.temp_buffer[self.rest] + buffer
 				buffer_str = sh_gzip_decompress(buffer)
-				if buffer_str == None or 'unexpected end of file' in buffer_str:
+				if buffer_str == None or b'unexpected end of file' in buffer_str:
 					self.temp_buffer[self.rest] = buffer
 					self.timestamp[self.rest] = time.time()
 					return
@@ -200,13 +201,14 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 		return host, port, clientFactory
 
 	def process(self):
-		if self.uri == 'music.163.com:443':
-			print('DEBUG: Abort on request: ' + self.uri)
+		if self.uri == b'music.163.com:443':
+			print('DEBUG: Abort on request:', self.uri)
 			self.channel._respondToBadRequestAndDisconnect()
 			return
 		host, port, clientFactory = self.process_prepare()
-		if self.uri == 'http://music.163.com/eapi/song/enhance/player/url':
-			print('request intercepted: ' + self.uri)
+		print(self.uri)
+		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url':
+			print('request intercepted:', self.uri)
 			#mainland_proxy.set_to_default()
 			mainland_proxy.status = -1
 			self.reactor.connectTCP(mainland_proxy.ip, mainland_proxy.port, clientFactory)
