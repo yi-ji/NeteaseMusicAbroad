@@ -26,7 +26,7 @@
 
 需要条件：<br/>
 下载该repo文件夹，不要修改任何文件名<br/>
-安装python包[Twisted](https://github.com/twisted/twisted)和PyQuery（均可用pip安装）。<br/>
+安装python包[Twisted](https://github.com/twisted/twisted), requests和PyQuery（均可用pip安装）。<br/>
 最新版本的Twisted需要更新pyOpenSSL才能使用。也可以选择装个旧版本。
 
 在每次打开网易云音乐之前：<br/>
@@ -36,7 +36,7 @@
 
 ### 测试环境
 
-macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10，年费会员。未测试任何其他情况，欢迎测试报bug谢谢。
+macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10 & 3.6.5，年费会员。未测试任何其他情况，欢迎测试报bug谢谢。
 
 ### 实现细节
 
@@ -63,7 +63,7 @@ Copyright: The author waives all rights, please feel free to use, share and modi
 
 Prerequisites: <br/>
 1. Download this folder and do not change file names.
-2. Install Python package [Twisted](https://github.com/twisted/twisted) and PyQuery. You may also need to update pyOpenSSL or use a older version of Twisted.
+2. Install Python package [Twisted](https://github.com/twisted/twisted), requests and PyQuery by `pip`. You may also need to update pyOpenSSL or use a older version of Twisted.
 
 Everytime before you launch NeteaseMusic:<br/>
 Just enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
@@ -72,7 +72,7 @@ Just enter the folder and double-click "NeteaseMusicHelper". See the success inf
 
 ### Test Environment
 
-macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10, yearly-paid membership.<br/>
+macOS 10.12，NeteaseMusic Version 1.5.6~1.5.9，python 2.7.10 & 3.6.5, yearly-paid membership.<br/>
 Other cases are not tested and your report is welcomed.
 
 ### Implementation Details
