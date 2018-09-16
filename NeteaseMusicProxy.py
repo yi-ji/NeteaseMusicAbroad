@@ -97,8 +97,8 @@ class MainlandProxy():
 
 class NeteaseMusicProxyClient(proxy.ProxyClient):
 		def __init__(self, *args, **kwargs):
-			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url'}
-			self.interval = {self.intercept['song']: 10, self.intercept['search']: 100}
+			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url', 'album': b'/eapi/v1/album', 'artist': b'/eapi/v1/artist'}
+			self.interval = {self.intercept['song']: 10, self.intercept['search']: 100, 'default': 10}
 			self.temp_buffer = {self.intercept['song']: None, self.intercept['search']: None}
 			self.timestamp = {self.intercept['song']: time.time(), self.intercept['search']: time.time()}
 			proxy.ProxyClient.__init__(self, *args, **kwargs)
@@ -130,9 +130,12 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 			# 	print 'url gzip decompress failed'
 
 		def handleResponsePart(self, buffer):
-			if self.rest in [self.intercept['song'], self.intercept['search']]:
+			if self.rest in [self.intercept['song'], self.intercept['search']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
 				print('response intercepted: ', self.rest)
-				if time.time() - self.timestamp[self.rest] > self.interval[self.rest]:
+				if self.rest not in self.timestamp:
+					self.timestamp[self.rest] = time.time()
+					self.temp_buffer[self.rest] = None
+				if time.time() - self.timestamp[self.rest] > self.interval.get(self.rest, self.interval['default']):
 					self.temp_buffer[self.rest] = 0
 					self.timestamp[self.rest] = time.time()
 				if self.temp_buffer[self.rest] != None:
