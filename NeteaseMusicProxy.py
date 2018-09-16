@@ -146,8 +146,8 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 					self.timestamp[self.rest] = time.time()
 					return
 				else:
-					self.temp_buffer[self.rest] = None
-					self.timestamp[self.rest] = time.time()
+					del self.temp_buffer[self.rest]
+					del self.timestamp[self.rest]
 				buffer_str = modify_response(buffer_str)
 				#print buffer_str
 				buffer = sh_gzip_compress(buffer_str)
