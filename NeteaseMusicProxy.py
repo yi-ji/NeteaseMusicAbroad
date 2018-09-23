@@ -98,7 +98,7 @@ class MainlandProxy():
 
 class NeteaseMusicProxyClient(proxy.ProxyClient):
 		def __init__(self, *args, **kwargs):
-			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url', 'album': b'/eapi/v1/album', 'artist': b'/eapi/v1/artist', 'linux': b'/api/linux/forward'}
+			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url', 'album': b'/eapi/v1/album', 'artist': b'/eapi/v1/artist', 'playlist': b'/eapi/v3/playlist/detail', 'discovery': b'/eapi/v1/discovery/new/songs', 'linux': b'/api/linux/forward'}
 			self.interval = {self.intercept['song']: 10, self.intercept['search']: 100, 'default': 10}
 			self.temp_buffer = {self.intercept['song']: None, self.intercept['search']: None}
 			self.timestamp = {self.intercept['song']: time.time(), self.intercept['search']: time.time()}
@@ -112,8 +112,8 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 				mainland_proxy.status = 0
 
 		def handleResponsePart(self, buffer):
-			if self.rest in [self.intercept['song'], self.intercept['search'], self.intercept['linux']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
-				if self.headers['content-length'] not in mainland_proxy.url_request_lengths:
+			if self.rest in [self.intercept['song'], self.intercept['search'], self.intercept['playlist'], self.intercept['discovery'], self.intercept['linux']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
+				if True: #self.headers['content-length'] not in mainland_proxy.url_request_lengths:
 					print('response intercepted: ', self.rest)
 					if self.rest not in self.timestamp:
 						self.timestamp[self.rest] = time.time()
