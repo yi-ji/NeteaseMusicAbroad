@@ -54,6 +54,7 @@ class MainlandProxy():
 		self.failed_times = 0
 		self.set_proxy()
 		self.status = 0
+		self.url_request_lengths = [b'296', b'264', b'168']
 
 	def set_proxy(self):
 		r = requests.get("http://cn-proxy.com/")
@@ -97,7 +98,7 @@ class MainlandProxy():
 
 class NeteaseMusicProxyClient(proxy.ProxyClient):
 		def __init__(self, *args, **kwargs):
-			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url', 'album': b'/eapi/v1/album', 'artist': b'/eapi/v1/artist'}
+			self.intercept = {'song': b'/eapi/v3/song/detail/', 'search': b'/eapi/cloudsearch/pc', 'url': b'/eapi/song/enhance/player/url', 'album': b'/eapi/v1/album', 'artist': b'/eapi/v1/artist', 'linux': b'/api/linux/forward'}
 			self.interval = {self.intercept['song']: 10, self.intercept['search']: 100, 'default': 10}
 			self.temp_buffer = {self.intercept['song']: None, self.intercept['search']: None}
 			self.timestamp = {self.intercept['song']: time.time(), self.intercept['search']: time.time()}
@@ -109,66 +110,38 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 				mainland_proxy.change()
 			else:
 				mainland_proxy.status = 0
-			# try:
-			# 	print buffer
-			# 	mainland_proxy.check(buffer)
-			# 	return
-			# except:
-			# 	print 'url direct read failed'
-			# try:
-			# 	buffer_str = buffer.encode('utf-8')
-			# 	print buffer_str
-			# 	mainland_proxy.check(buffer_str)
-			# 	return
-			# except UnicodeDecodeError:
-			# 	print 'url utf-8 encode failed'
-			# buffer_str = sh_gzip_decompress(buffer)
-			# if buffer_str is not None:
-			# 	print buffer_str
-			# 	mainland_proxy.check(buffer_str)
-			# else:
-			# 	print 'url gzip decompress failed'
 
 		def handleResponsePart(self, buffer):
-			if self.rest in [self.intercept['song'], self.intercept['search']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
-				print('response intercepted: ', self.rest)
-				if self.rest not in self.timestamp:
-					self.timestamp[self.rest] = time.time()
-					self.temp_buffer[self.rest] = None
-				if time.time() - self.timestamp[self.rest] > self.interval.get(self.rest, self.interval['default']):
-					self.temp_buffer[self.rest] = 0
-					self.timestamp[self.rest] = time.time()
-				if self.temp_buffer[self.rest] != None:
-					buffer = self.temp_buffer[self.rest] + buffer
-				buffer_str = sh_gzip_decompress(buffer)
-				if buffer_str == None or b'unexpected end of file' in buffer_str:
-					self.temp_buffer[self.rest] = buffer
-					self.timestamp[self.rest] = time.time()
-					return
-				else:
-					del self.temp_buffer[self.rest]
-					del self.timestamp[self.rest]
-				buffer_str = modify_response(buffer_str)
-				#print buffer_str
-				buffer = sh_gzip_compress(buffer_str)
+			if self.rest in [self.intercept['song'], self.intercept['search'], self.intercept['linux']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
+				if self.headers['content-length'] not in mainland_proxy.url_request_lengths:
+					print('response intercepted: ', self.rest)
+					if self.rest not in self.timestamp:
+						self.timestamp[self.rest] = time.time()
+						self.temp_buffer[self.rest] = None
+					if time.time() - self.timestamp[self.rest] > self.interval.get(self.rest, self.interval['default']):
+						self.temp_buffer[self.rest] = 0
+						self.timestamp[self.rest] = time.time()
+					if self.temp_buffer[self.rest] != None:
+						buffer = self.temp_buffer[self.rest] + buffer
+					buffer_str = sh_gzip_decompress(buffer)
+					if buffer_str == None or b'unexpected end of file' in buffer_str:
+						self.temp_buffer[self.rest] = buffer
+						self.timestamp[self.rest] = time.time()
+						return
+					else:
+						del self.temp_buffer[self.rest]
+						del self.timestamp[self.rest]
+					buffer_str = modify_response(buffer_str)
+					#print buffer_str
+					buffer = sh_gzip_compress(buffer_str)
 			if self.rest == self.intercept['url']:
 				self.check_buffer(buffer)
-			# if self.rest == '/eapi/song/like':
-			# 	buffer_str = sh_gzip_decompress(buffer)
-			# 	print buffer_str
-			# 	buffer = sh_gzip_compress('{"playlistId":0,"code":200}')
-			# if self.rest == '/eapi/v1/playlist/manipulate/tracks':
-			# 	buffer_str = sh_gzip_decompress(buffer)
-			# 	buffer_str = buffer_str.replace('"code":401', '"code":200')
-			# 	# buffer_str = buffer_str.replace('"count":269', '"count":270')
-			# 	print buffer_str
-			# 	buffer = sh_gzip_compress(buffer_str)
 			proxy.ProxyClient.handleResponsePart(self, buffer)
 
 class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 	protocol = NeteaseMusicProxyClient
 	def clientConnectionFailed(self, connector, reason):
-		print('client connection failed, changing proxy')
+		print reason, 'client connection failed, changing proxy'
 		mainland_proxy.change()
 	def clientConnectionLost(self, connector, reason):
 		if mainland_proxy.status == -1:
@@ -180,8 +153,9 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 	protocols = {b'http': NeteaseMusicProxyClientFactory}
 
 	def process_prepare(self):
+		# print self.method, self.uri, self.path, self.args, self.requestHeaders, self.responseHeaders, self.received_cookies, self.protocols, self.host, self.channel, self.content, self.cookies
 		parsed = urllib_parse.urlparse(self.uri)
-		protocol = parsed[0]
+		protocol = parsed[0] or 'http'
 		host = parsed[1].decode('ascii')
 		port = self.ports[protocol]
 		if ':' in host:
@@ -197,10 +171,6 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 		self.content.seek(0, 0)
 		s = self.content.read()
 		clientFactory = class_(self.method, rest, self.clientproto, headers, s, self)
-		# if self.uri == 'http://music.163.com/eapi/song/like':
-		# 	print rest, headers, s
-		# if self.uri == 'http://music.163.com/eapi/v1/playlist/manipulate/tracks':
-		# 	print rest, headers, s
 		return host, port, clientFactory
 
 	def process(self):
@@ -210,8 +180,8 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 			return
 		host, port, clientFactory = self.process_prepare()
 		print(self.uri)
-		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url':
-			print('request intercepted:', self.uri)
+		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url' or self.uri == b'http://music.163.com/api/linux/forward' and self.getHeader('content-length') in mainland_proxy.url_request_lengths:
+			print('request intercepted:', self.uri, self.getHeader('content-length'))
 			#mainland_proxy.set_to_default()
 			mainland_proxy.status = -1
 			self.reactor.connectTCP(mainland_proxy.ip, mainland_proxy.port, clientFactory)

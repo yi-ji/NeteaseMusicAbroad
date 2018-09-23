@@ -1,5 +1,8 @@
-cd $(dirname `find ~/ -name NeteaseMusicHelper | head -1`)
+if [ "`uname`" = "Darwin" ]
+then
+    cd $(dirname `find ~/ -name NeteaseMusicHelper | head -1`)
+fi
 rm -f nohup.out helper.log
 touch helper.log
-nohup sh run_me.sh > /dev/null &
+nohup sh run_`uname`.sh > /dev/null &
 tail -f helper.log
