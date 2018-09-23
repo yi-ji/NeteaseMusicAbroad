@@ -54,7 +54,7 @@ class MainlandProxy():
 		self.failed_times = 0
 		self.set_proxy()
 		self.status = 0
-		self.url_request_lengths = [b'296', b'264', b'168']
+		self.url_request_length = b'264'
 
 	def set_proxy(self):
 		r = requests.get("http://cn-proxy.com/")
@@ -113,7 +113,7 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 
 		def handleResponsePart(self, buffer):
 			if self.rest in [self.intercept['song'], self.intercept['search'], self.intercept['playlist'], self.intercept['discovery'], self.intercept['linux']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
-				if True: #self.headers['content-length'] not in mainland_proxy.url_request_lengths:
+				if self.headers['content-length'] != mainland_proxy.url_request_length:
 					print('response intercepted: ', self.rest)
 					if self.rest not in self.timestamp:
 						self.timestamp[self.rest] = time.time()
@@ -180,7 +180,7 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 			return
 		host, port, clientFactory = self.process_prepare()
 		print(self.uri)
-		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url' or self.uri == b'http://music.163.com/api/linux/forward' and self.getHeader('content-length') in mainland_proxy.url_request_lengths:
+		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url' or self.uri == b'http://music.163.com/api/linux/forward' and self.getHeader('content-length') == mainland_proxy.url_request_length:
 			print('request intercepted:', self.uri, self.getHeader('content-length'))
 			#mainland_proxy.set_to_default()
 			mainland_proxy.status = -1
