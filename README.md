@@ -47,7 +47,8 @@
 
 年费会员;
 - macOS 10.12 & NeteaseMusic Version 1.5.6~1.5.9 & python 2.7.10/3.6.5 <br/>
-- Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15rc1 <br/>
+- Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15/3.6.6 <br/>
+
 未测试任何其他情况，欢迎测试报bug谢谢。
 
 ### 实现细节
@@ -94,6 +95,7 @@ Then enjoy NeteaseMusic by simply clicking its desktop icon from now on.
 Yearly-paid membership;
 - macOS 10.12 & NeteaseMusic Version 1.5.6~1.5.9 & python 2.7.10 & 3.6.5 <br/>
 - Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15rc1 <br/>
+
 Other cases are not tested and your report is welcomed.
 
 ### Implementation Details
