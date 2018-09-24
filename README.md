@@ -93,8 +93,8 @@ Then enjoy NeteaseMusic by simply clicking its desktop icon from now on.
 ### Test Environment
 
 Yearly-paid membership;
-- macOS 10.12 & NeteaseMusic Version 1.5.6~1.5.9 & python 2.7.10 & 3.6.5 <br/>
-- Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15rc1 <br/>
+- macOS 10.12 & NeteaseMusic Version 1.5.6~1.5.9 & python 2.7.10/3.6.5 <br/>
+- Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15/3.6.6 <br/>
 
 Other cases are not tested and your report is welcomed.
 
@@ -111,13 +111,13 @@ Methods that I tried:
 
 #### Linux
 
-Finally I chose to use `gsettings` tool provided by GNOME because root privilege won't be needed.
+Finally I chose `gsettings` tool provided by GNOME for redirecting traffics because root privilege won't be needed.
 `iptables` can also do the job:
 ```
 sudo sysctl -w net.ipv4.ip_forward=1
 sudo iptables -t nat -A OUTPUT -p tcp -d music.163.com -j REDIRECT --to-ports 32794
 ```
-but requires to fix redirection-modified headers. `TPROXY` instead of `REDIRECT` is actually built for this but we have another problem unsolved in our case: [How to let locally generated packets pass through PREROUTING chain?](https://unix.stackexchange.com/questions/469477/how-to-let-locally-generated-packets-pass-through-prerouting-chain)
+but requires to fix redirection-modified request headers. Target parameter `TPROXY` instead of `REDIRECT` is actually built for this, however we have another problem unsolved in our case: [How to let locally generated packets pass through PREROUTING chain?](https://unix.stackexchange.com/questions/469477/how-to-let-locally-generated-packets-pass-through-prerouting-chain)
 
 Part 2. Intercept, modify and redirect requests.
 
