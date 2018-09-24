@@ -113,7 +113,8 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 
 		def handleResponsePart(self, buffer):
 			if self.rest in [self.intercept['song'], self.intercept['search'], self.intercept['playlist'], self.intercept['discovery'], self.intercept['linux']] or self.intercept['album'] in self.rest or self.intercept['artist'] in self.rest:
-				if self.headers['content-length'] != mainland_proxy.url_request_length:
+				print(self.headers)
+				if self.headers[b'content-length'] != mainland_proxy.url_request_length:
 					print('response intercepted: ', self.rest)
 					if self.rest not in self.timestamp:
 						self.timestamp[self.rest] = time.time()
@@ -141,11 +142,11 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 	protocol = NeteaseMusicProxyClient
 	def clientConnectionFailed(self, connector, reason):
-		print reason, 'client connection failed, changing proxy'
+		print(reason, 'client connection failed, changing proxy')
 		mainland_proxy.change()
 	def clientConnectionLost(self, connector, reason):
-		if mainland_proxy.status == -1 and 'Connection was closed cleanly' not in str(reason):
-			print reason
+		if mainland_proxy.status == -1 and b'Connection was closed cleanly' not in str.encode(str(reason)):
+			print(reason)
 			mainland_proxy.change()
 			mainland_proxy.status = 0
 
@@ -180,8 +181,8 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 			return
 		host, port, clientFactory = self.process_prepare()
 		print(self.uri)
-		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url' or self.uri == b'http://music.163.com/api/linux/forward' and self.getHeader('content-length') == mainland_proxy.url_request_length:
-			print('request intercepted:', self.uri, self.getHeader('content-length'))
+		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url' or self.uri == b'http://music.163.com/api/linux/forward' and self.getHeader(b'content-length') == mainland_proxy.url_request_length:
+			print('request intercepted:', self.uri, self.getHeader(b'content-length'))
 			#mainland_proxy.set_to_default()
 			mainland_proxy.status = -1
 			self.reactor.connectTCP(mainland_proxy.ip, mainland_proxy.port, clientFactory)
