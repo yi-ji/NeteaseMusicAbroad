@@ -4,5 +4,5 @@ then
 fi
 rm -f nohup.out helper.log
 touch helper.log
-nohup sh run_`uname`.sh > /dev/null &
+nohup /bin/bash run_`uname`.sh > /dev/null &
 tail -f helper.log
