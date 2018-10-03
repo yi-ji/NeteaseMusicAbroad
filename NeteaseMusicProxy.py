@@ -145,8 +145,8 @@ class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 		print(reason, 'client connection failed, changing proxy')
 		mainland_proxy.change()
 	def clientConnectionLost(self, connector, reason):
-		if mainland_proxy.status == -1 and b'Connection was closed cleanly' not in str.encode(str(reason)):
-			print(reason)
+		print(reason)
+		if mainland_proxy.status == -1: # and b'Connection was closed cleanly' not in str.encode(str(reason)):
 			mainland_proxy.change()
 			mainland_proxy.status = 0
 
