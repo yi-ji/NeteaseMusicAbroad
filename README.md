@@ -38,7 +38,7 @@
 #### Linux
 `vim /usr/share/applications/netease-cloud-music.desktop` <br/>
 修改Exec变量为：<br/>
-`Exec=/bin/bash -c "unset SESSION_MANAGER && nohup netease-cloud-music %U & cd YOUR_PATH_TO_NeteaseMusicHelper && ./NeteaseMusicHelper"` <br/>
+`Exec=/bin/bash -c "unset SESSION_MANAGER && netease-cloud-music %U & cd YOUR_PATH_TO_NeteaseMusicHelper && ./NeteaseMusicHelper"` <br/>
 以后只需正常从桌面图标启动网易云音乐即可。
 
 \*  为什么要`unset SESSION_MANAGER`？详见[这里](https://www.zhihu.com/question/277330447)
@@ -87,7 +87,7 @@ Just enter the folder and double-click "NeteaseMusicHelper". See the success inf
 #### Linux
 Do this at first time:
 `vim /usr/share/applications/netease-cloud-music.desktop` <br/>
-Change "Exec" variable to `Exec=/bin/bash -c "unset SESSION_MANAGER && nohup netease-cloud-music %U & cd YOUR_PATH_TO_NeteaseMusicHelper && ./NeteaseMusicHelper"` <br/>
+Change "Exec" variable to `Exec=/bin/bash -c "unset SESSION_MANAGER && netease-cloud-music %U & cd YOUR_PATH_TO_NeteaseMusicHelper && ./NeteaseMusicHelper"` <br/>
 Then enjoy NeteaseMusic by simply clicking its desktop icon from now on.
 
 ### Test Environment
