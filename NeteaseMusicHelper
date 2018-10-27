@@ -1,6 +1,6 @@
 if [ "`uname`" = "Darwin" ]
 then
-    cd $(dirname `find ~/ -name NeteaseMusicHelper | head -1`)
+    cd `dirname $0`
 fi
 rm -f nohup.out helper.log
 touch helper.log
