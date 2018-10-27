@@ -1,5 +1,5 @@
 from twisted.web import proxy, http
-from twisted.internet import reactor
+from twisted.internet import reactor, protocol
 from twisted.python import log
 from twisted.python.compat import urllib_parse
 from io import StringIO
@@ -146,7 +146,7 @@ class NeteaseMusicProxyClientFactory(proxy.ProxyClientFactory):
 		mainland_proxy.change()
 	def clientConnectionLost(self, connector, reason):
 		print(reason)
-		if mainland_proxy.status == -1: # and b'Connection was closed cleanly' not in str.encode(str(reason)):
+		if self.headers[b'connection'] != b'close' and mainland_proxy.status == -1:
 			mainland_proxy.change()
 			mainland_proxy.status = 0
 
@@ -176,6 +176,12 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 
 	def process(self):
 		if self.uri == b'music.163.com:443':
+			if self.getHeader(b'host') == self.uri:
+				host, port = self.uri.split(':')
+				port = int(port)
+				clientFactory = ConnectProxyClientFactory(host, port, self)
+				self.reactor.connectTCP(host, port, clientFactory)
+				return
 			print('DEBUG: Abort on request:', self.uri)
 			self.channel._respondToBadRequestAndDisconnect()
 			return
@@ -191,9 +197,59 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 
 class NeteaseMusicProxy(proxy.Proxy):
 	requestFactory = NeteaseMusicProxyRequest
+	connectedRemote = None
+
+	def requestDone(self, request):
+		if request.method == b'CONNECT' and self.connectedRemote is not None:
+			self.connectedRemote.connectedClient = self
+			self._handlingRequest = False
+			if self._savedTimeOut:
+				self.setTimeout(self._savedTimeOut)
+			data = b''.join(self._dataBuffer)
+			self._dataBuffer = []
+			self.setLineMode(data)
+		else:
+			proxy.Proxy.requestDone(self, request)
+
+	def dataReceived(self, data):
+		if self.connectedRemote is None:
+			proxy.Proxy.dataReceived(self, data)
+		else:
+			self.connectedRemote.transport.write(data)
 
 class NeteaseMusicProxyFactory(http.HTTPFactory):
 	protocol = NeteaseMusicProxy
+
+class ConnectProxyClient(protocol.Protocol):
+    connectedClient = None
+
+    def connectionMade(self):
+        self.factory.request.channel.connectedRemote = self
+        self.factory.request.setResponseCode(200, b'CONNECT OK')
+        self.factory.request.setHeader(b'X-Connected-IP', self.transport.realAddress[0])
+        self.factory.request.setHeader(b'Content-Length', b'0')
+        self.factory.request.finish()
+
+    def connectionLost(self, reason):
+        if self.connectedClient is not None:
+            self.connectedClient.transport.loseConnection()
+
+    def dataReceived(self, data):
+        if self.connectedClient is not None:
+            self.connectedClient.transport.write(data)
+        else:
+            print('Unexpected data received:', data)
+
+class ConnectProxyClientFactory(protocol.ClientFactory):
+    protocol = ConnectProxyClient
+
+    def __init__(self, host, port, request):
+        self.request = request
+        self.host = host
+        self.port = port
+
+    def clientConnectionFailed(self, connector, reason):
+        self.request.fail(b'Gateway Error', str(reason))
 
 mainland_proxy = MainlandProxy()
 reactor.listenTCP(32794, NeteaseMusicProxyFactory())
