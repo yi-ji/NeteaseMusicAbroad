@@ -26,8 +26,7 @@
 
 需要条件：<br/>
 下载该repo文件夹，不要修改任何文件名<br/>
-安装python包[Twisted](https://github.com/twisted/twisted), requests和PyQuery（均可用pip安装）。<br/>
-最新版本的Twisted需要更新pyOpenSSL才能使用。也可以选择装个旧版本。
+`pip install twisted requests pyquery --user` <br/>
 
 #### macOS
 在每次打开网易云音乐之前：<br/>
@@ -76,7 +75,7 @@ Copyright: The author waives all rights, please feel free to use, share and modi
 
 Prerequisites: <br/>
 1. Download this folder and do not change file names.
-2. Install Python package [Twisted](https://github.com/twisted/twisted), requests and PyQuery by `pip`. You may also need to update pyOpenSSL or use a older version of Twisted.
+2. `pip install twisted requests pyquery --user`
 
 #### macOS
 Everytime before you launch NeteaseMusic:<br/>
