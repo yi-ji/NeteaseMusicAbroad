@@ -177,7 +177,7 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 	def process(self):
 		if self.uri == b'music.163.com:443':
 			if self.getHeader(b'host') == self.uri:
-				host, port = self.uri.split(':')
+				host, port = self.uri.split(b':')
 				port = int(port)
 				clientFactory = ConnectProxyClientFactory(host, port, self)
 				self.reactor.connectTCP(host, port, clientFactory)
@@ -221,35 +221,35 @@ class NeteaseMusicProxyFactory(http.HTTPFactory):
 	protocol = NeteaseMusicProxy
 
 class ConnectProxyClient(protocol.Protocol):
-    connectedClient = None
+	connectedClient = None
 
-    def connectionMade(self):
-        self.factory.request.channel.connectedRemote = self
-        self.factory.request.setResponseCode(200, b'CONNECT OK')
-        self.factory.request.setHeader(b'X-Connected-IP', self.transport.realAddress[0])
-        self.factory.request.setHeader(b'Content-Length', b'0')
-        self.factory.request.finish()
+	def connectionMade(self):
+		self.factory.request.channel.connectedRemote = self
+		self.factory.request.setResponseCode(200, b'CONNECT OK')
+		self.factory.request.setHeader(b'X-Connected-IP', self.transport.realAddress[0])
+		self.factory.request.setHeader(b'Content-Length', b'0')
+		self.factory.request.finish()
 
-    def connectionLost(self, reason):
-        if self.connectedClient is not None:
-            self.connectedClient.transport.loseConnection()
+	def connectionLost(self, reason):
+		if self.connectedClient is not None:
+			self.connectedClient.transport.loseConnection()
 
-    def dataReceived(self, data):
-        if self.connectedClient is not None:
-            self.connectedClient.transport.write(data)
-        else:
-            print('Unexpected data received:', data)
+	def dataReceived(self, data):
+		if self.connectedClient is not None:
+			self.connectedClient.transport.write(data)
+		else:
+			print('Unexpected data received:', data)
 
 class ConnectProxyClientFactory(protocol.ClientFactory):
-    protocol = ConnectProxyClient
+	protocol = ConnectProxyClient
 
-    def __init__(self, host, port, request):
-        self.request = request
-        self.host = host
-        self.port = port
+	def __init__(self, host, port, request):
+		self.request = request
+		self.host = host
+		self.port = port
 
-    def clientConnectionFailed(self, connector, reason):
-        self.request.fail(b'Gateway Error', str(reason))
+	def clientConnectionFailed(self, connector, reason):
+		self.request.fail(b'Gateway Error', str(reason))
 
 mainland_proxy = MainlandProxy()
 reactor.listenTCP(32794, NeteaseMusicProxyFactory())
