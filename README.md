@@ -32,8 +32,6 @@
 在每次打开网易云音乐之前：<br/>
 进入文件夹，双击NeteaseMusicHelper即可。等待提示信息成功之后可以关掉它，然后一片清净，开心听歌，不用善后。<br/>
 
-\* 如果歌单不再显示灰色，但点击播放时提示「找不到可以播放的歌曲」或者「因版权方要求…您所在地区已下架」，则请尝试`pip install service_identity`。<br/>
-
 #### Linux
 `vim /usr/share/applications/netease-cloud-music.desktop` <br/>
 修改Exec变量为：<br/>
@@ -41,6 +39,18 @@
 以后只需正常从桌面图标启动网易云音乐即可。
 
 \*  为什么要`unset SESSION_MANAGER`？详见[这里](https://www.zhihu.com/question/277330447)
+
+#### FAQ
+- 运行之后无效怎么办？<br/>
+  - 检查是否正确安装了依赖库：`python -c "import twisted; import requests; import pyquery; exit"`
+  - 打开：_系统偏好设置 -> 网络 -> 高级 -> 代理 -> 自动代理配置_ 是否被勾选？ 配置文件的路径是否存在？
+  - 第一次使用时，请尝试反复切换刷新歌单若干次
+  - 如多次尝试，请先退出网易云音乐等待1分钟或者`` kill -9 `ps x | grep NeteaseMusic | awk '{print $1}'` ``
+  - 如仍然无效，请执行`python NeteaseMusicProxy.py`将输出贴在issue里，并标明网络环境（Wi-Fi/有线网络等）
+
+- 使用Python 3的话需要怎么做？<br/>
+  - 如果`python -V`和`pip -V`均提示Python版本在3以上的话，直接正常使用即可；否则, 确认安装了Python 3的上述package，并将NeteaseMusicHelper里面的`python`替换为你的`python3`
+
 
 ### 测试环境
 
@@ -81,13 +91,22 @@ Prerequisites: <br/>
 Everytime before you launch NeteaseMusic:<br/>
 Just enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
 
-\* If the playlist looks good but says *"No music to be found"* or *"...copyright...your region is blocked"* when you try to play a song, please try `pip install service_identity` (might work)
-
 #### Linux
 Do this at the first time: <br/>
 `vim /usr/share/applications/netease-cloud-music.desktop` <br/>
 Change "Exec" variable to `Exec=/bin/bash -c "unset SESSION_MANAGER && netease-cloud-music %U & cd __YOUR_PATH_TO_NeteaseMusicHelper__ && ./NeteaseMusicHelper"` <br/>
 Then enjoy NeteaseMusic by simply clicking its desktop icon from now on.
+
+#### FAQ
+- Not working? <br/>
+  - Make sure packages are installed：`python -c "import twisted; import requests; import pyquery; exit"`
+  - Navigate to：_Systems Preferences -> Network -> Advanced -> Proxies -> Automatic Proxy Configuration_, is it checked? Does the config path exist?
+  - For first launch, please switch playlists and refresh for a couple of times
+  - If try again, please exit netease-cloud-music first and wait 1 min or`` kill -9 `ps x | grep NeteaseMusic | awk '{print $1}'` ``
+  - If still not working, please run `python NeteaseMusicProxy.py` and paste the output to your issue, also report your network type (e.g. Wi-Fi/Ether)
+
+- What if using Python 3？<br/>
+  - If `python -V` and `pip -V` return Python version > 3, do nothing; Otherwise, make sure Python 3 packages are installed，and replace `python` in NeteaseMusicHelper to`python3`
 
 ### Test Environment
 
