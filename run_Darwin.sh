@@ -34,7 +34,8 @@ network_service_name=`get_network_service_name`
 
 print_log "The change been made can be recovered at: System Preference -> Network -> Advanced -> Proxies -> Automatic Proxy Configuration."
 
-if [ ! `networksetup -getautoproxyurl $network_service_name | grep NeteaseMusic | wc -l | xargs` = "1" ] || [ ! `networksetup -getautoproxyurl $network_service_name | grep Yes | wc -l | xargs` = "1" ] 
+pac_file=`networksetup -getautoproxyurl $network_service_name | head -1 | awk -F "://" '{print $2}'`
+if [ ! -e $pac_file ] || ! networksetup -getautoproxyurl $network_service_name | grep -q Yes
 then
 	print_log "Password is needed only for the first time."
 	networksetup -setautoproxyurl $network_service_name file://`pwd`/NeteaseMusic.pac
