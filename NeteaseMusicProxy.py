@@ -189,7 +189,7 @@ class NeteaseMusicProxyRequest(proxy.ProxyRequest):
 		print(self.uri)
 		if self.uri == b'http://music.163.com/eapi/song/enhance/player/url' or self.uri == b'http://music.163.com/api/linux/forward' and self.getHeader(b'content-length') == mainland_proxy.url_request_length:
 			print('request intercepted:', self.uri, self.getHeader(b'content-length'))
-			#mainland_proxy.set_to_default()
+			mainland_proxy.set_to_default()
 			mainland_proxy.status = -1
 			self.reactor.connectTCP(mainland_proxy.ip, mainland_proxy.port, clientFactory)
 			return
