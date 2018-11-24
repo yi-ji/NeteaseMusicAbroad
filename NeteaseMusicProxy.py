@@ -105,9 +105,12 @@ class NeteaseMusicProxyClient(proxy.ProxyClient):
 			proxy.ProxyClient.__init__(self, *args, **kwargs)
 
 		def check_buffer(self, buffer):
-			if (len(buffer) != 352):
+			if len(buffer) != 414:
 				print('length of buffer:', len(buffer))
-				mainland_proxy.change()
+				if len(buffer) == 238:
+					print('cannot play this song due to copyright')
+				else:
+					mainland_proxy.change()
 			else:
 				mainland_proxy.status = 0
 
