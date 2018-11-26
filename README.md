@@ -49,7 +49,8 @@
   - 如仍然无效，请执行`python NeteaseMusicProxy.py`将输出贴在issue里，并标明网络环境（Wi-Fi/有线网络等）
 
 - 使用Python 3的话需要怎么做？<br/>
-  - 如果`python -V`和`pip -V`均提示Python版本在3以上的话，直接正常使用即可；否则, 确认安装了Python 3的上述package，并将NeteaseMusicHelper里面的`python`替换为你的`python3`
+  - 确认安装了Python 3版本的上述packages（如使用`pip`安装则查看`pip -V`，等等）
+  - 如果`python -V`提示版本在3以上，直接正常使用即可；否则, 将`run_*.sh`里面的`python`替换为你的`python3`
 
 
 ### 测试环境
@@ -106,8 +107,9 @@ Then enjoy NeteaseMusic by simply clicking its desktop icon from now on.
   - If still not working, please run `python NeteaseMusicProxy.py` and paste the output to your issue, also report your network type (e.g. Wi-Fi/Ether)
 
 - What if using Python 3？<br/>
-  - If `python -V` and `pip -V` return Python version > 3, do nothing; Otherwise, make sure Python 3 packages are installed，and replace `python` in NeteaseMusicHelper to`python3`
-
+  - Make sure packages above are installed for Python 3 (e.g. by checking `pip -V`)
+  - If `python -V` return version > 3, do nothing; Otherwise, replace `python` in `run_*.sh` to `python3`
+  
 ### Test Environment
 
 Yearly-paid membership;
