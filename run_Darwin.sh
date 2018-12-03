@@ -43,8 +43,10 @@ fi
 
 nohup python NeteaseMusicProxy.py > /dev/null &
 
-print_log "All set, you can launch your NeteaseMusic App and close me now."
+print_log "All set, launching NeteaseMusic App now..."
 print_log "Don't worry about me, I will terminate myself a few seconds after you quit NeteaseMusic."
+
+nohup /Applications/NeteaseMusic.app/Contents/MacOS/NeteaseMusic &
 
 pid=`ps x | grep NeteaseMusicProxy | awk '{print $1;}' | head -1`
 
