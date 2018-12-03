@@ -29,8 +29,7 @@
 2. `pip install twisted requests pyquery --user` <br/>
 
 #### macOS
-在每次打开网易云音乐之前：<br/>
-进入文件夹，双击NeteaseMusicHelper即可。等待提示信息成功之后可以关掉它，然后一片清净，开心听歌，不用善后。<br/>
+进入文件夹，双击NeteaseMusicHelper即可。提示成功之后可以关掉终端窗口，然后开心听歌，不用善后。<br/>
 
 #### Linux
 `vim /usr/share/applications/netease-cloud-music.desktop` <br/>
@@ -89,8 +88,7 @@ Prerequisites: <br/>
 2. `pip install twisted requests pyquery --user`
 
 #### macOS
-Everytime before you launch NeteaseMusic:<br/>
-Just enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
+Enter the folder and double-click "NeteaseMusicHelper". See the success info and then be free to close it, enjoy your music.
 
 #### Linux
 Do this at the first time: <br/>
