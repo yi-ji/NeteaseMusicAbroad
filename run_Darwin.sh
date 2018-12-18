@@ -34,6 +34,7 @@ network_service_name=`get_network_service_name`
 
 print_log "The change been made can be recovered at: System Preference -> Network -> Advanced -> Proxies -> Automatic Proxy Configuration."
 
+networksetup -setautoproxystate $network_service_name on
 pac_file=`networksetup -getautoproxyurl $network_service_name | head -1 | awk -F "://" '{print $2}'`
 if [ ! -e $pac_file ] || ! networksetup -getautoproxyurl $network_service_name | grep -q Yes
 then
