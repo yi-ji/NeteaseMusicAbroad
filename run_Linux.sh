@@ -14,12 +14,12 @@ nohup python NeteaseMusicProxy.py > /dev/null &
 print_log "All set, you can launch your NeteaseMusic App and close me now."
 print_log "Don't worry about me, I will terminate myself a few seconds after you quit NeteaseMusic."
 
-pid=`ps x | grep NeteaseMusicProxy | awk '{print $1;}' | head -1`
+pid=`pgrep -f NeteaseMusicProxy`
 
 while true 
 do
 	sleep 60
-	if [ `ps x | grep netease-cloud-music | wc -l | xargs` -eq 1 ] 
+	if [ `pgrep netease-cloud-music | wc -l | xargs` -eq 1 ]
 	then
 		kill -9 $pid
 		break

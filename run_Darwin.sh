@@ -49,12 +49,12 @@ print_log "Don't worry about me, I will terminate myself a few seconds after you
 
 nohup /Applications/NeteaseMusic.app/Contents/MacOS/NeteaseMusic &
 
-pid=`ps x | grep NeteaseMusicProxy | awk '{print $1;}' | head -1`
+pid=`pgrep -f NeteaseMusicProxy`
 
 while true 
 do
 	sleep 60
-	if [ `ps x | grep MacOS/NeteaseMusic | wc -l | xargs` -eq 1 ] 
+	if [ `pgrep NeteaseMusic | wc -l | xargs` -eq 1 ]
 	then
 		kill -9 $pid
 		break

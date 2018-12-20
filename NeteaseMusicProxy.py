@@ -10,6 +10,15 @@ from pyquery.pyquery import PyQuery
 
 log.startLogging(sys.stdout)
 
+def kill_existed():
+	pgrep = Popen(['pgrep', '-f', 'NeteaseMusicProxy'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+	existed = pgrep.communicate()[0].rstrip()
+	if existed and existed != os.getpid():
+		print('killing existed NeteaseMusicProxy:', existed)
+		kill = Popen(['kill', '-9', existed], stderr=STDOUT)
+		kill.communicate()
+		time.sleep(5)
+
 def py_gzip_compress(plain_content):
 	temp_file = StringIO.StringIO()
 	with gzip.GzipFile(fileobj=temp_file, mode="w") as f:
@@ -255,5 +264,6 @@ class ConnectProxyClientFactory(protocol.ClientFactory):
 		self.request.fail(b'Gateway Error', str(reason))
 
 mainland_proxy = MainlandProxy()
+kill_existed()
 reactor.listenTCP(32794, NeteaseMusicProxyFactory())
 reactor.run()
