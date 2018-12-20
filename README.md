@@ -44,7 +44,7 @@
   - 检查是否正确安装了依赖库：`python -c "import twisted; import requests; import pyquery; exit"`
   - 打开：_系统偏好设置 -> 网络 -> 高级 -> 代理 -> 自动代理配置_ 是否被勾选？ 配置文件的路径是否存在？
   - 第一次使用时，请尝试反复切换刷新歌单若干次
-  - 如多次尝试，请先退出网易云音乐等待1分钟或者`` kill -9 `ps x | grep NeteaseMusic | awk '{print $1}'` ``
+  - 如多次尝试，请先退出网易云音乐再重启
   - 如仍然无效，请执行`python NeteaseMusicProxy.py`将输出贴在issue里，并标明网络环境（Wi-Fi/有线网络等）
 
 - 使用Python 3的话需要怎么做？<br/>
@@ -101,7 +101,7 @@ Then enjoy NeteaseMusic by simply clicking its desktop icon from now on.
   - Make sure packages are installed：`python -c "import twisted; import requests; import pyquery; exit"`
   - Navigate to：_Systems Preferences -> Network -> Advanced -> Proxies -> Automatic Proxy Configuration_, is it checked? Does the config path exist?
   - For first launch, please switch playlists and refresh for a couple of times
-  - If try again, please exit netease-cloud-music first and wait 1 min or`` kill -9 `ps x | grep NeteaseMusic | awk '{print $1}'` ``
+  - If try again, please exit netease-cloud-music before re-launch
   - If still not working, please run `python NeteaseMusicProxy.py` and paste the output to your issue, also report your network type (e.g. Wi-Fi/Ether)
 
 - What if using Python 3？<br/>
