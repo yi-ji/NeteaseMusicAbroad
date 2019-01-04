@@ -12,12 +12,12 @@ log.startLogging(sys.stdout)
 
 def kill_existed():
 	pgrep = Popen(['pgrep', '-f', 'NeteaseMusicProxy'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-	existed = pgrep.communicate()[0].rstrip()
-	if existed and existed != str(os.getpid()):
-		print('killing existed NeteaseMusicProxy:', existed)
-		kill = Popen(['kill', '-9', existed], stderr=STDOUT)
-		kill.communicate()
-		time.sleep(5)
+	existed = pgrep.communicate()[0].rstrip().split('\n')
+	for pid in existed:
+		if pid and pid != str(os.getpid()):
+			kill = Popen(['kill', '-9', pid], stderr=STDOUT)
+			kill.communicate()
+	time.sleep(5)
 
 def py_gzip_compress(plain_content):
 	temp_file = StringIO.StringIO()
