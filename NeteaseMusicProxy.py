@@ -12,7 +12,7 @@ log.startLogging(sys.stdout)
 
 def kill_existed():
 	pgrep = Popen(['pgrep', '-f', 'NeteaseMusicProxy'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-	existed = pgrep.communicate()[0].rstrip().split('\n')
+	existed = pgrep.communicate()[0].rstrip().split(b'\n')
 	for pid in existed:
 		if pid and pid != str(os.getpid()):
 			kill = Popen(['kill', '-9', pid], stderr=STDOUT)
