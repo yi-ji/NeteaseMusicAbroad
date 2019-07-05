@@ -19,7 +19,7 @@ pid=`pgrep -f NeteaseMusicProxy`
 while true 
 do
 	sleep 60
-	if [ `pgrep netease-cloud-music | wc -l | xargs` -eq 1 ]
+	if [ `pgrep netease-cloud-music | wc -l | xargs` -eq 0 ]
 	then
 		kill -9 $pid
 		break
