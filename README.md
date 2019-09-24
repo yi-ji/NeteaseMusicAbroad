@@ -58,6 +58,7 @@
 - macOS 10.12\~10.14 & NeteaseMusic Version 1.5.6\~1.5.10 & python 2.7.10/3.6.5 <br/>
   - **暂不支持macOS上网易云音乐2.0.0及以上版本** ([#29](https://github.com/yi-ji/NeteaseMusicAbroad/issues/29))
 - Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15/3.6.6 <br/>
+  - **暂不支持Linux上网易云音乐1.2及以上版本** ([#29](https://github.com/yi-ji/NeteaseMusicAbroad/issues/44))
 
 未测试任何其他情况，欢迎测试报bug谢谢。
 
