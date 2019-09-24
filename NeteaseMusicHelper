@@ -5,4 +5,13 @@ fi
 rm -f nohup.out helper.log
 touch helper.log
 nohup /bin/bash run_`uname`.sh > /dev/null &
-tail -f helper.log
+
+if [ "`uname`" = "Darwin" ]
+then
+	tail -f helper.log &
+	sleep 2
+	echo -e "\nNow, press any key to close me..."
+	read -n 1
+	kill -9 `pgrep Terminal` &
+	exit
+fi
