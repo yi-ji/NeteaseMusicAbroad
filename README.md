@@ -116,6 +116,7 @@ Yearly-paid membership;
 - macOS 10.12\~10.14 & NeteaseMusic Version 1.5.6\~1.5.10 & python 2.7.10/3.6.5 <br/>
   - **NeteaseMusic Version 2.0.0 and above are by far not supported on macOS** ([#29](https://github.com/yi-ji/NeteaseMusicAbroad/issues/29))
 - Linux Ubuntu 18.04 & NeteaseMusic Version 1.1.0 & python 2.7.15/3.6.6 <br/>
+  - **NeteaseMusic Version 1.2 and above are by far not supported on Linux** ([#44](https://github.com/yi-ji/NeteaseMusicAbroad/issues/44))
 
 Other cases are not tested and your report is welcomed.
 
